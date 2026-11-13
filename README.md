@@ -1,7 +1,7 @@
 # Rede externa – Internet, IX.br, links e MTR - Grafana e Zabbix.
 
 
-![Dashboard](imagens/dashboard-rede-externa.jpg)
+![Dashboard](imagens/dashboardwan.png)
 
 ## Por que foi criada
 
