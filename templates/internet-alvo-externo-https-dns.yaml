@@ -1,0 +1,49 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+    - uuid: 5ca27a531c9b4a61a0849e07236dfdb0
+      name: Templates/Applications
+  templates:
+    - uuid: d01470a77b3f476686e6a023d4f0cec0
+      template: 'Internet Alvo Externo 3F'
+      name: 'Internet – alvo externo HTTPS/DNS (3F)'
+      description: 'Testes a partir do Zabbix server: TCP/HTTPS (porta 443) e tempo de conexão. Use junto com o template ICMP.'
+      groups:
+        - name: Templates/Applications
+      items:
+        - uuid: 04d0688d55b44e84a9aaf6a46ff91cb9
+          name: 'Internet: tempo de conexão TCP {$INET.PORT}'
+          type: SIMPLE
+          key: 'net.tcp.service.perf[tcp,,{$INET.PORT}]'
+          history: 90d
+          value_type: FLOAT
+          units: s
+          tags:
+            - tag: component
+              value: internet
+          triggers:
+            - uuid: 3aea23fa4ea846169b1449dc147d2071
+              expression: 'avg(/Internet Alvo Externo 3F/net.tcp.service.perf[tcp,,{$INET.PORT}],15m)>{$INET.SLOW}'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'avg(/Internet Alvo Externo 3F/net.tcp.service.perf[tcp,,{$INET.PORT}],15m)<{$INET.SLOW}'
+              name: '{HOST.NAME}: conexão lenta (média 15 min > {$INET.SLOW} s)'
+              priority: WARNING
+              description: 'Dispara quando a média dos últimos 15 min do tempo de conexão TCP passa de {$INET.SLOW} s. Alterado em 04/11/2026.'
+        - uuid: 880fa277886f4811a27990cea9c46b81
+          name: 'Internet: serviço TCP {$INET.PORT} disponível'
+          type: SIMPLE
+          key: 'net.tcp.service[tcp,,{$INET.PORT}]'
+          history: 90d
+          tags:
+            - tag: component
+              value: internet
+          triggers:
+            - uuid: 747da7dc25a440638ca0d23c1ddf93b8
+              expression: 'max(/Internet Alvo Externo 3F/net.tcp.service[tcp,,{$INET.PORT}],5m)=0'
+              name: '{HOST.NAME}: serviço {$INET.PORT} inacessível'
+              priority: AVERAGE
+      macros:
+        - macro: '{$INET.PORT}'
+          value: '443'
+        - macro: '{$INET.SLOW}'
+          value: '1'

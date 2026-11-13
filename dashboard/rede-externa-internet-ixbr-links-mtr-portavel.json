@@ -1,0 +1,2588 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_ZABBIX",
+      "label": "Zabbix",
+      "type": "datasource",
+      "pluginId": "alexanderzobnin-zabbix-datasource",
+      "pluginName": "Zabbix"
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "description": "Destinos externos com ping E porta do serviço respondendo (destinos sem ICMP contam só a porta).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 0
+      },
+      "hideTimeOverride": true,
+      "id": 3,
+      "maxDataPoints": 60,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "/^Alvo$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "INTERNET EXTERNA"
+          },
+          "host": {
+            "filter": "/.*/"
+          },
+          "item": {
+            "filter": "/^(ICMP ping|Internet: serviço TCP .* disponível|DNS .*: porta 53 acessível|DNS .*: ICMP ping)$/"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": true,
+            "skipEmptyValues": false,
+            "useTrends": "false",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "timeFrom": "1h",
+      "title": "Alvos externos OK",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(.*): Internet: serviço TCP .* disponível$",
+            "renamePattern": "$1: TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(.*): Internet: tempo de conexão TCP .*$",
+            "renamePattern": "$1: Tempo TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(?:Internet - Servidores DNS públicos: )?DNS (.*): porta 53 acessível$",
+            "renamePattern": "DNS $1: TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(?:Internet - Servidores DNS públicos: )?DNS (.*): tempo de conexão$",
+            "renamePattern": "DNS $1: Tempo TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(?:Internet - Servidores DNS públicos: )?DNS (.*): (ICMP (?:ping|loss|response time))$",
+            "renamePattern": "DNS $1: $2"
+          }
+        },
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "reducers": [
+              "lastNotNull"
+            ]
+          }
+        },
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "regexp",
+            "regExp": "/^(?:Internet - )?(?<Alvo>.+): (?<M>ICMP ping|ICMP loss|ICMP response time|TCP|Tempo TCP)$/",
+            "replace": false,
+            "source": "Field"
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Alvo": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Last *": {
+                "aggregations": [
+                  "min"
+                ],
+                "operation": "aggregate"
+              }
+            }
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "filters": [
+              {
+                "config": {
+                  "id": "equal",
+                  "options": {
+                    "value": 1
+                  }
+                },
+                "fieldName": "Last * (min)"
+              }
+            ],
+            "match": "any",
+            "type": "include"
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "description": "Destinos externos com ping OU porta do serviço sem resposta. Um serviço pode responder ao ping e estar fora (ex.: porta 443 fechada).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 3,
+        "y": 0
+      },
+      "hideTimeOverride": true,
+      "id": 4,
+      "maxDataPoints": 60,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "/^Alvo$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "INTERNET EXTERNA"
+          },
+          "host": {
+            "filter": "/.*/"
+          },
+          "item": {
+            "filter": "/^(ICMP ping|Internet: serviço TCP .* disponível|DNS .*: porta 53 acessível|DNS .*: ICMP ping)$/"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": true,
+            "skipEmptyValues": false,
+            "useTrends": "false",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "timeFrom": "1h",
+      "title": "Alvos externos FORA",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(.*): Internet: serviço TCP .* disponível$",
+            "renamePattern": "$1: TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(.*): Internet: tempo de conexão TCP .*$",
+            "renamePattern": "$1: Tempo TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(?:Internet - Servidores DNS públicos: )?DNS (.*): porta 53 acessível$",
+            "renamePattern": "DNS $1: TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(?:Internet - Servidores DNS públicos: )?DNS (.*): tempo de conexão$",
+            "renamePattern": "DNS $1: Tempo TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(?:Internet - Servidores DNS públicos: )?DNS (.*): (ICMP (?:ping|loss|response time))$",
+            "renamePattern": "DNS $1: $2"
+          }
+        },
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "reducers": [
+              "lastNotNull"
+            ]
+          }
+        },
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "regexp",
+            "regExp": "/^(?:Internet - )?(?<Alvo>.+): (?<M>ICMP ping|ICMP loss|ICMP response time|TCP|Tempo TCP)$/",
+            "replace": false,
+            "source": "Field"
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Alvo": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Last *": {
+                "aggregations": [
+                  "min"
+                ],
+                "operation": "aggregate"
+              }
+            }
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "filters": [
+              {
+                "config": {
+                  "id": "equal",
+                  "options": {
+                    "value": 0
+                  }
+                },
+                "fieldName": "Last * (min)"
+              }
+            ],
+            "match": "any",
+            "type": "include"
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 6,
+        "y": 0
+      },
+      "hideTimeOverride": true,
+      "id": 5,
+      "maxDataPoints": 60,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "net"
+          },
+          "host": {
+            "filter": "/^(Link|Google)/"
+          },
+          "item": {
+            "filter": "ICMP ping"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": true,
+            "skipEmptyValues": false,
+            "useTrends": "false",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "timeFrom": "1h",
+      "title": "Links/IPs públicos FORA",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "reducers": [
+              "lastNotNull"
+            ]
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "filters": [
+              {
+                "config": {
+                  "id": "equal",
+                  "options": {
+                    "value": 0
+                  }
+                },
+                "fieldName": "Last *"
+              }
+            ],
+            "match": "any",
+            "type": "include"
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "N/D",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 9,
+        "y": 0
+      },
+      "hideTimeOverride": true,
+      "id": 6,
+      "maxDataPoints": 60,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "/.*/"
+          },
+          "host": {
+            "filter": "Speed_test"
+          },
+          "item": {
+            "filter": "Download Speed"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": true,
+            "skipEmptyValues": false,
+            "useTrends": "default",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "timeFrom": "24h",
+      "title": "Download (Openlink)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "N/D",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 13,
+        "y": 0
+      },
+      "hideTimeOverride": true,
+      "id": 7,
+      "maxDataPoints": 60,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "/.*/"
+          },
+          "host": {
+            "filter": "Speed_test"
+          },
+          "item": {
+            "filter": "Upload Speed"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": true,
+            "skipEmptyValues": false,
+            "useTrends": "default",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "timeFrom": "24h",
+      "title": "Upload (Openlink)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "N/D",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 17,
+        "y": 0
+      },
+      "hideTimeOverride": true,
+      "id": 8,
+      "maxDataPoints": 60,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "/.*/"
+          },
+          "host": {
+            "filter": "Speed_test_Frionline"
+          },
+          "item": {
+            "filter": "Download Speed"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": true,
+            "skipEmptyValues": false,
+            "useTrends": "default",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "timeFrom": "24h",
+      "title": "Download (Frionline)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "N/D",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 21,
+        "y": 0
+      },
+      "hideTimeOverride": true,
+      "id": 9,
+      "maxDataPoints": 60,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "/.*/"
+          },
+          "host": {
+            "filter": "Speed_test_Frionline"
+          },
+          "item": {
+            "filter": "Upload Speed"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": true,
+            "skipEmptyValues": false,
+            "useTrends": "default",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "timeFrom": "24h",
+      "title": "Upload (Frionline)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "description": "Status = OK só quando o ping E a porta do serviço respondem. Ping OK com Porta FORA = o servidor existe na rede, mas o serviço (ex.: HTTPS 443) não atende.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Destino"
+            },
+            "properties": [
+              {
+                "id": "custom.align",
+                "value": "left"
+              },
+              {
+                "id": "custom.minWidth",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(Ping|Porta)$"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "FORA"
+                      },
+                      "1": {
+                        "color": "green",
+                        "index": 1,
+                        "text": "OK"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "from": 0.01,
+                      "result": {
+                        "color": "orange",
+                        "index": 2,
+                        "text": "INSTÁVEL"
+                      },
+                      "to": 0.99
+                    },
+                    "type": "range"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Perda"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "orange",
+                      "value": 5
+                    },
+                    {
+                      "color": "red",
+                      "value": 20
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(Latência|Conexão)$"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "orange",
+                      "value": 0.08
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.2
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Ping"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "FORA"
+                      },
+                      "1": {
+                        "color": "green",
+                        "index": 1,
+                        "text": "OK"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "from": 0.01,
+                      "result": {
+                        "color": "orange",
+                        "index": 2,
+                        "text": "INSTÁVEL"
+                      },
+                      "to": 0.99
+                    },
+                    "type": "range"
+                  },
+                  {
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "color": "#4b5563",
+                        "index": 9,
+                        "text": "sem ICMP"
+                      }
+                    },
+                    "type": "special"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "FORA"
+                      },
+                      "1": {
+                        "color": "green",
+                        "index": 1,
+                        "text": "OK"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "from": 0.01,
+                      "result": {
+                        "color": "orange",
+                        "index": 2,
+                        "text": "INSTÁVEL"
+                      },
+                      "to": 0.99
+                    },
+                    "type": "range"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 70
+              },
+              {
+                "id": "custom.align",
+                "value": "center"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 22,
+        "w": 10,
+        "x": 0,
+        "y": 3
+      },
+      "hideTimeOverride": true,
+      "id": 11,
+      "maxDataPoints": 30,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "INTERNET EXTERNA"
+          },
+          "host": {
+            "filter": "/.*/"
+          },
+          "item": {
+            "filter": "/^(ICMP ping|ICMP loss|ICMP response time|Internet: serviço TCP .* disponível|Internet: tempo de conexão TCP .*|DNS .*: porta 53 acessível|DNS .*: tempo de conexão|DNS .*: ICMP (ping|loss|response time))$/"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": true,
+            "skipEmptyValues": false,
+            "useTrends": "false",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "timeFrom": "30m",
+      "title": "Alvos externos – disponibilidade e latência",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(.*): Internet: serviço TCP .* disponível$",
+            "renamePattern": "$1: TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(.*): Internet: tempo de conexão TCP .*$",
+            "renamePattern": "$1: Tempo TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(?:Internet - Servidores DNS públicos: )?DNS (.*): porta 53 acessível$",
+            "renamePattern": "DNS $1: TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(?:Internet - Servidores DNS públicos: )?DNS (.*): tempo de conexão$",
+            "renamePattern": "DNS $1: Tempo TCP"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(?:Internet - Servidores DNS públicos: )?DNS (.*): (ICMP (?:ping|loss|response time))$",
+            "renamePattern": "DNS $1: $2"
+          }
+        },
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "reducers": [
+              "lastNotNull"
+            ]
+          }
+        },
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "regexp",
+            "regExp": "/^(?:Internet - )?(?<Alvo>.+): (?<M>ICMP ping|ICMP loss|ICMP response time|TCP|Tempo TCP)$/",
+            "replace": false,
+            "source": "Field"
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Alvo": {
+                "operation": "groupby"
+              },
+              "Last *": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "M": {
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "groupingToMatrix",
+          "options": {
+            "columnField": "M",
+            "emptyValue": "null",
+            "rowField": "Alvo",
+            "valueField": "Last * (max)"
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Status",
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "ICMP ping",
+                "TCP"
+              ],
+              "reducer": "min"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "Alvo\\M": 0,
+              "ICMP loss": 3,
+              "ICMP ping": 2,
+              "ICMP response time": 4,
+              "Status": 1,
+              "TCP": 5,
+              "Tempo TCP": 6
+            },
+            "renameByName": {
+              "Alvo\\M": "Destino",
+              "ICMP loss": "Perda",
+              "ICMP ping": "Ping",
+              "ICMP response time": "Latência",
+              "TCP": "Porta",
+              "Tempo TCP": "Conexão"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Status"
+              },
+              {
+                "desc": true,
+                "field": "Latência"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "FORA"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 0.08
+              },
+              {
+                "color": "red",
+                "value": 0.15
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 14,
+        "x": 10,
+        "y": 3
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "vertical",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 12,
+          "valueSize": 22
+        },
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "net"
+          },
+          "host": {
+            "filter": "/^Link/"
+          },
+          "item": {
+            "filter": "ICMP response time"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false,
+            "skipEmptyValues": false,
+            "useTrends": "false",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "title": "Links – ICMP (FORA = sem resposta)",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(?:Link\\s+)?(.*?):\\s*ICMP response time$",
+            "renamePattern": "$1"
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Destino"
+            },
+            "properties": [
+              {
+                "id": "custom.align",
+                "value": "left"
+              },
+              {
+                "id": "custom.minWidth",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(Média|Pior|Variação)$"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "orange",
+                      "value": 60
+                    },
+                    {
+                      "color": "red",
+                      "value": 150
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Perda"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "orange",
+                      "value": 2
+                    },
+                    {
+                      "color": "red",
+                      "value": 10
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Saltos"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 19,
+        "w": 6,
+        "x": 10,
+        "y": 6
+      },
+      "hideTimeOverride": true,
+      "id": 17,
+      "maxDataPoints": 30,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "Monitoramento MTR"
+          },
+          "host": {
+            "filter": "/.*/"
+          },
+          "item": {
+            "filter": "/^MTR: (latência média no destino|pior latência no destino|perda no destino|variação de latência no destino|quantidade de saltos)$/"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": true,
+            "skipEmptyValues": false,
+            "useTrends": "false",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "timeFrom": "1h",
+      "title": "MTR por destino",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "reducers": [
+              "lastNotNull"
+            ]
+          }
+        },
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "regexp",
+            "regExp": "/^(?:MTR - )?(?<Destino>.+): MTR: (?<M>.+)$/",
+            "replace": false,
+            "source": "Field"
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Destino": {
+                "operation": "groupby"
+              },
+              "Last *": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "M": {
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "groupingToMatrix",
+          "options": {
+            "columnField": "M",
+            "emptyValue": "null",
+            "rowField": "Destino",
+            "valueField": "Last * (max)"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "pior latência no destino": true,
+              "quantidade de saltos": true,
+              "variação de latência no destino": true
+            },
+            "indexByName": {
+              "Destino\\M": 0,
+              "latência média no destino": 1,
+              "perda no destino": 4,
+              "pior latência no destino": 2,
+              "quantidade de saltos": 5,
+              "variação de latência no destino": 3
+            },
+            "renameByName": {
+              "Destino\\M": "Destino",
+              "latência média no destino": "Média",
+              "perda no destino": "Perda",
+              "pior latência no destino": "Pior",
+              "quantidade de saltos": "Saltos",
+              "variação de latência no destino": "Variação"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": true,
+                "field": "Média"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 6
+      },
+      "id": 18,
+      "maxDataPoints": 300,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ],
+          "displayMode": "hidden",
+          "placement": "right",
+          "showLegend": false,
+          "sortBy": "Mean",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "Monitoramento MTR"
+          },
+          "host": {
+            "filter": "/.*/"
+          },
+          "item": {
+            "filter": "MTR: latência média no destino"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": true,
+            "skipEmptyValues": false,
+            "useTrends": "default",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "title": "MTR – latência média no destino",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^(?:MTR - )?(.*): MTR: latência média no destino$",
+            "renamePattern": "$1"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 13
+      },
+      "id": 15,
+      "maxDataPoints": 300,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "/.*/"
+          },
+          "host": {
+            "filter": "/^Speed_test(_Frionline)?$/"
+          },
+          "item": {
+            "filter": "/^(Download|Upload) Speed$/"
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": true,
+            "skipEmptyValues": false,
+            "useTrends": "default",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "0",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "timeFrom": "7d",
+      "title": "Speedtest – download e upload (Openlink × Frionline)",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^Speed_test_Frionline: (.*) Speed$",
+            "renamePattern": "Frionline $1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^Speed_test: (.*) Speed$",
+            "renamePattern": "Openlink $1"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "${DS_ZABBIX}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "noValue": "✓ Nenhum alerta ativo",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sev"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "N/C"
+                      },
+                      "1": {
+                        "color": "blue",
+                        "index": 1,
+                        "text": "Info"
+                      },
+                      "2": {
+                        "color": "yellow",
+                        "index": 2,
+                        "text": "Atenção"
+                      },
+                      "3": {
+                        "color": "orange",
+                        "index": 3,
+                        "text": "Média"
+                      },
+                      "4": {
+                        "color": "red",
+                        "index": 4,
+                        "text": "Alta"
+                      },
+                      "5": {
+                        "color": "dark-red",
+                        "index": 5,
+                        "text": "Desastre"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 75
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Início"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 19
+      },
+      "id": 21,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.16",
+      "targets": [
+        {
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "${DS_ZABBIX}"
+          },
+          "evaltype": "0",
+          "functions": [],
+          "group": {
+            "filter": "/^(INTERNET EXTERNA|net|Monitoramento MTR|REDE)$/"
+          },
+          "host": {
+            "filter": "/^(?!Downdetector$).*/"
+          },
+          "item": {
+            "filter": ""
+          },
+          "itemTag": {
+            "filter": ""
+          },
+          "macro": {
+            "filter": ""
+          },
+          "options": {
+            "acknowledged": 2,
+            "count": false,
+            "disableDataAlignment": false,
+            "hostProxy": false,
+            "hostsInMaintenance": true,
+            "limit": 100,
+            "minSeverity": 0,
+            "severities": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "showDisabledItems": false,
+            "skipEmptyValues": false,
+            "sortProblems": "priority",
+            "useTrends": "default",
+            "useZabbixValueMapping": false
+          },
+          "proxy": {
+            "filter": ""
+          },
+          "queryType": "5",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "schema": 12,
+          "showProblems": "problems",
+          "table": {
+            "skipEmptyValues": false
+          },
+          "tags": {
+            "filter": ""
+          },
+          "textFilter": "",
+          "trigger": {
+            "filter": ""
+          },
+          "triggers": {
+            "acknowledged": 2
+          }
+        }
+      ],
+      "title": "Alertas ativos – internet, links, MTR e rede",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "json",
+            "jsonPaths": [
+              {
+                "alias": "Desde",
+                "path": "timestamp"
+              },
+              {
+                "alias": "Sev",
+                "path": "severity"
+              },
+              {
+                "alias": "Host",
+                "path": "hosts[0].name"
+              },
+              {
+                "alias": "Alerta",
+                "path": "description"
+              }
+            ],
+            "keepTime": false,
+            "replace": true,
+            "source": "Problems"
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "Desde"
+              },
+              {
+                "destinationType": "number",
+                "targetField": "Sev"
+              }
+            ],
+            "fields": {}
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Início",
+            "binary": {
+              "left": "Desde",
+              "operator": "*",
+              "right": "1000"
+            },
+            "mode": "binary",
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Desde": true
+            },
+            "indexByName": {
+              "Alerta": 2,
+              "Host": 1,
+              "Início": 3,
+              "Sev": 0
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": true,
+                "field": "Sev"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "refresh": "1m",
+  "schemaVersion": 41,
+  "tags": [
+    "internet",
+    "rede",
+    "ix.br",
+    "mtr",
+    "links"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Rede externa – Internet, IX.br, links e MTR",
+  "uid": "internet-externa"
+}

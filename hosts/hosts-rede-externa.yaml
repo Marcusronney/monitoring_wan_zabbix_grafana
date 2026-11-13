@@ -1,0 +1,735 @@
+zabbix_export:
+  version: '7.4'
+  host_groups:
+    - uuid: 0f307efa9f474e39adc4f977471ec8e6
+      name: 'INTERNET EXTERNA'
+    - uuid: 0423071aa3664abdb03219422b84873a
+      name: 'Monitoramento MTR'
+    - uuid: 07dbe42033f94052bd63806a1cbdf6ef
+      name: net
+  hosts:
+    - host: Google
+      name: Google
+      description: Google
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: net
+      interfaces:
+        - type: IPMI
+          ip: 8.8.8.8
+          port: '623'
+          interface_ref: if1
+    - host: 'Internet - AWS Sao Paulo'
+      name: 'Internet - AWS Sao Paulo'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: ec2.sa-east-1.amazonaws.com
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - Cloudflare 1.1.1.1'
+      name: 'Internet - Cloudflare 1.1.1.1'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - ip: 1.1.1.1
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - DNS raiz .br a.dns.br'
+      name: 'Internet - DNS raiz .br (a.dns.br)'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: a.dns.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+      macros:
+        - macro: '{$INET.PORT}'
+          value: '53'
+    - host: 'Internet - gov.br'
+      name: 'Internet - gov.br'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: www.gov.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - IX.br site NIC.br SP'
+      name: 'Internet - IX.br site (NIC.br SP)'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: ix.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - Microsoft 365'
+      name: 'Internet - Microsoft 365'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: outlook.office365.com
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - NIC.br'
+      name: 'Internet - NIC.br'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: nic.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - NTP.br a.st1 SP'
+      name: 'Internet - NTP.br a.st1 (SP)'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: a.st1.ntp.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - NTP.br anycast a.ntp.br'
+      name: 'Internet - NTP.br anycast (a.ntp.br)'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: a.ntp.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - NTP.br c.st1 SP'
+      name: 'Internet - NTP.br c.st1 (SP)'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: c.st1.ntp.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - Rede-Rio RJ'
+      name: 'Internet - Rede-Rio (RJ)'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: www.rederio.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - Registro.br'
+      name: 'Internet - Registro.br'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: registro.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - Resolucao DNS'
+      name: 'Internet - Servidores DNS públicos'
+      description: 'Testes de resolução DNS feitos pelo agente do Zabbix server.'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - interface_ref: if1
+      items:
+        - name: 'DNS Cloudflare 1.1.1.1: ICMP loss'
+          type: SIMPLE
+          key: 'icmppingloss[1.1.1.1]'
+          value_type: FLOAT
+          units: '%'
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS Google 8.8.8.8: ICMP loss'
+          type: SIMPLE
+          key: 'icmppingloss[8.8.8.8]'
+          value_type: FLOAT
+          units: '%'
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS Quad9 9.9.9.9: ICMP loss'
+          type: SIMPLE
+          key: 'icmppingloss[9.9.9.9]'
+          value_type: FLOAT
+          units: '%'
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS AdGuard 94.140.14.14: ICMP loss'
+          type: SIMPLE
+          key: 'icmppingloss[94.140.14.14]'
+          value_type: FLOAT
+          units: '%'
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS DNS .br (a.dns.br): ICMP loss'
+          type: SIMPLE
+          key: 'icmppingloss[a.dns.br]'
+          value_type: FLOAT
+          units: '%'
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS Cloudflare 1.1.1.1: ICMP response time'
+          type: SIMPLE
+          key: 'icmppingsec[1.1.1.1]'
+          value_type: FLOAT
+          units: s
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS Google 8.8.8.8: ICMP response time'
+          type: SIMPLE
+          key: 'icmppingsec[8.8.8.8]'
+          value_type: FLOAT
+          units: s
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS Quad9 9.9.9.9: ICMP response time'
+          type: SIMPLE
+          key: 'icmppingsec[9.9.9.9]'
+          value_type: FLOAT
+          units: s
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS AdGuard 94.140.14.14: ICMP response time'
+          type: SIMPLE
+          key: 'icmppingsec[94.140.14.14]'
+          value_type: FLOAT
+          units: s
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS DNS .br (a.dns.br): ICMP response time'
+          type: SIMPLE
+          key: 'icmppingsec[a.dns.br]'
+          value_type: FLOAT
+          units: s
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS Cloudflare 1.1.1.1: ICMP ping'
+          type: SIMPLE
+          key: 'icmpping[1.1.1.1]'
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS Google 8.8.8.8: ICMP ping'
+          type: SIMPLE
+          key: 'icmpping[8.8.8.8]'
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS Quad9 9.9.9.9: ICMP ping'
+          type: SIMPLE
+          key: 'icmpping[9.9.9.9]'
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS AdGuard 94.140.14.14: ICMP ping'
+          type: SIMPLE
+          key: 'icmpping[94.140.14.14]'
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS DNS .br (a.dns.br): ICMP ping'
+          type: SIMPLE
+          key: 'icmpping[a.dns.br]'
+          interface_ref: if1
+          tags:
+            - tag: component
+              value: icmp
+        - name: 'DNS Cloudflare 1.1.1.1: tempo de conexão'
+          type: SIMPLE
+          key: 'net.tcp.service.perf[tcp,1.1.1.1,53]'
+          history: 90d
+          value_type: FLOAT
+          units: s
+          tags:
+            - tag: component
+              value: dns
+        - name: 'DNS Google 8.8.8.8: tempo de conexão'
+          type: SIMPLE
+          key: 'net.tcp.service.perf[tcp,8.8.8.8,53]'
+          history: 90d
+          value_type: FLOAT
+          units: s
+          tags:
+            - tag: component
+              value: dns
+        - name: 'DNS Quad9 9.9.9.9: tempo de conexão'
+          type: SIMPLE
+          key: 'net.tcp.service.perf[tcp,9.9.9.9,53]'
+          history: 90d
+          value_type: FLOAT
+          units: s
+          tags:
+            - tag: component
+              value: dns
+        - name: 'DNS AdGuard 94.140.14.14: tempo de conexão'
+          type: SIMPLE
+          key: 'net.tcp.service.perf[tcp,94.140.14.14,53]'
+          history: 90d
+          value_type: FLOAT
+          units: s
+          tags:
+            - tag: component
+              value: dns
+        - name: 'DNS DNS .br (a.dns.br): tempo de conexão'
+          type: SIMPLE
+          key: 'net.tcp.service.perf[tcp,a.dns.br,53]'
+          history: 90d
+          value_type: FLOAT
+          units: s
+          tags:
+            - tag: component
+              value: dns
+        - name: 'DNS Cloudflare 1.1.1.1: porta 53 acessível'
+          type: SIMPLE
+          key: 'net.tcp.service[tcp,1.1.1.1,53]'
+          history: 90d
+          tags:
+            - tag: component
+              value: dns
+          triggers:
+            - expression: 'max(/Internet - Resolucao DNS/net.tcp.service[tcp,1.1.1.1,53],5m)=0'
+              name: 'DNS Cloudflare 1.1.1.1 inacessível'
+              priority: AVERAGE
+        - name: 'DNS Google 8.8.8.8: porta 53 acessível'
+          type: SIMPLE
+          key: 'net.tcp.service[tcp,8.8.8.8,53]'
+          history: 90d
+          tags:
+            - tag: component
+              value: dns
+          triggers:
+            - expression: 'max(/Internet - Resolucao DNS/net.tcp.service[tcp,8.8.8.8,53],5m)=0'
+              name: 'DNS Google 8.8.8.8 inacessível'
+              priority: AVERAGE
+        - name: 'DNS Quad9 9.9.9.9: porta 53 acessível'
+          type: SIMPLE
+          key: 'net.tcp.service[tcp,9.9.9.9,53]'
+          history: 90d
+          tags:
+            - tag: component
+              value: dns
+          triggers:
+            - expression: 'max(/Internet - Resolucao DNS/net.tcp.service[tcp,9.9.9.9,53],5m)=0'
+              name: 'DNS Quad9 9.9.9.9 inacessível'
+              priority: AVERAGE
+        - name: 'DNS AdGuard 94.140.14.14: porta 53 acessível'
+          type: SIMPLE
+          key: 'net.tcp.service[tcp,94.140.14.14,53]'
+          history: 90d
+          tags:
+            - tag: component
+              value: dns
+          triggers:
+            - expression: 'max(/Internet - Resolucao DNS/net.tcp.service[tcp,94.140.14.14,53],5m)=0'
+              name: 'DNS AdGuard 94.140.14.14 inacessível'
+              priority: AVERAGE
+        - name: 'DNS DNS .br (a.dns.br): porta 53 acessível'
+          type: SIMPLE
+          key: 'net.tcp.service[tcp,a.dns.br,53]'
+          history: 90d
+          tags:
+            - tag: component
+              value: dns
+          triggers:
+            - expression: 'max(/Internet - Resolucao DNS/net.tcp.service[tcp,a.dns.br,53],5m)=0'
+              name: 'DNS DNS .br (a.dns.br) inacessível'
+              priority: AVERAGE
+    - host: 'Internet - RNP RJ'
+      name: 'Internet - RNP (RJ)'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: www.rnp.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - SIMET NIC.br'
+      name: 'Internet - SIMET NIC.br'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: simet.nic.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - TOTVS'
+      name: 'Internet - TOTVS'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: www.totvs.com
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Internet - UFRJ RJ'
+      name: 'Internet - UFRJ (RJ)'
+      description: 'Alvo externo para testes de conectividade (rede externa).'
+      templates:
+        - name: 'Internet Alvo Externo 3F'
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: 'INTERNET EXTERNA'
+      interfaces:
+        - useip: 'NO'
+          ip: ''
+          dns: www.ufrj.br
+          interface_ref: if1
+      tags:
+        - tag: tipo
+          value: internet
+    - host: 'Link Frionline 146'
+      name: 'Link Frionline 146'
+      description: 'Link Frionline 146'
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: net
+      interfaces:
+        - type: IPMI
+          ip: 146.112.41.2
+          port: '623'
+          interface_ref: if1
+    - host: 'Link Secundario Frionline 74'
+      name: 'Link Secundario Frionline 74'
+      description: 'Link Secundário Frionline 74'
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: net
+      interfaces:
+        - type: IPMI
+          ip: 74.82.42.42
+          port: '623'
+          interface_ref: if1
+    - host: 'Link Secundario Frionline  100.127.0.33'
+      name: 'Link Secundario Frionline  100.127.0.33'
+      description: 'Link Secundário Frionline 100.127.0.33'
+      status: DISABLED
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: net
+      interfaces:
+        - type: IPMI
+          ip: 100.127.0.33
+          port: '623'
+          interface_ref: if1
+    - host: 'Link Secundario Frionline  177.54.113.66'
+      name: 'Link Secundario Frionline  177.54.113.66'
+      description: 'Link Secundário Frionline  177.54.113.66'
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: net
+      interfaces:
+        - type: IPMI
+          ip: 177.54.113.66
+          port: '623'
+          interface_ref: if1
+    - host: 'Link Secundario Frionline 177.54.113.255'
+      name: 'Link Secundario Frionline 177.54.113.255'
+      description: 'Link Secundário Frionline 177.54.113.255'
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: net
+      interfaces:
+        - type: IPMI
+          ip: 177.54.113.255
+          port: '623'
+          interface_ref: if1
+    - host: 'Link SumiCity 1'
+      name: 'Link SumiCity 1'
+      description: 'Link SumiCity1'
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: net
+      interfaces:
+        - type: IPMI
+          ip: 1.0.0.3
+          port: '623'
+          interface_ref: if1
+    - host: 'Link SumiCity 9'
+      name: 'Link SumiCity 9'
+      description: 'Link SumiCity 9'
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: net
+      interfaces:
+        - type: IPMI
+          ip: 9.9.9.9
+          port: '623'
+          interface_ref: if1
+    - host: 'MTR - 3F Site'
+      name: 'MTR - 3F Site'
+      description: 'MTR - 3F Site'
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+      macros:
+        - macro: '{$MTR.TARGET}'
+          value: 74.50.66.26
+    - host: 'MTR - Alpes SP'
+      name: 'MTR - Alpes SP'
+      description: |
+        MTR - Google DNS
+        
+        162.120.186.84
+        
+        IP Reverso 162-120-186-84.v4.fetch.tunnel.googlezip.net
+        Data 09h51min - 23/07/2026
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+      macros:
+        - macro: '{$MTR.TARGET}'
+          value: 162.120.186.84
+    - host: 'MTR - Cloudflare DNS'
+      name: 'MTR - Cloudflare DNS'
+      description: 'MTR - Google DNS'
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+      macros:
+        - macro: '{$MTR.TARGET}'
+          value: 1.1.1.1
+    - host: 'MTR - DNS Adguard'
+      name: 'MTR - DNS Adguard'
+      description: 'MTR - DNS Adguard'
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+      macros:
+        - macro: '{$MTR.TARGET}'
+          value: 94.140.14.14
+    - host: 'MTR - Frionline'
+      name: 'MTR - Frionline'
+      description: 'MTR - Google DNS'
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+      macros:
+        - macro: '{$MTR.TARGET}'
+          value: 191.240.255.58
+    - host: 'MTR - Giga mais'
+      name: 'MTR - Giga mais'
+      description: 'MTR - Google DNS'
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+      macros:
+        - macro: '{$MTR.TARGET}'
+          value: 179.191.211.70
+    - host: 'MTR - Giga mais Gateway 69'
+      name: 'MTR - Giga mais Gateway 69'
+      description: 'MTR - Gateway Giga+ 179.191.211.69'
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+      macros:
+        - macro: '{$MTR.TARGET}'
+          value: 179.191.211.69
+    - host: 'MTR - Google DNS'
+      name: 'MTR - Google DNS'
+      description: 'MTR - Google DNS'
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+    - host: 'MTR - IX.br SP ix.br'
+      name: 'MTR - IX.br SP (ix.br)'
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+      macros:
+        - macro: '{$MTR.TARGET}'
+          value: ix.br
+    - host: 'MTR - MKT Local'
+      name: 'MTR - MKT Local'
+      description: 'MTR - MKT Router Local'
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+      macros:
+        - macro: '{$MTR.TARGET}'
+          value: 192.168.0.254
+    - host: 'MTR - NTP.br SP'
+      name: 'MTR - NTP.br SP'
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+      macros:
+        - macro: '{$MTR.TARGET}'
+          value: a.st1.ntp.br
+    - host: 'MTR - RNP RJ'
+      name: 'MTR - RNP RJ'
+      templates:
+        - name: 'Template MTR - Analise de Pacotes de Rede'
+      groups:
+        - name: 'Monitoramento MTR'
+      macros:
+        - macro: '{$MTR.TARGET}'
+          value: www.rnp.br
+    - host: Speed_test
+      name: Speed_test
+      description: Speed_teste
+      templates:
+        - name: 'Template - SpeedTest'
+      groups:
+        - name: net
+      interfaces:
+        - port: '10051'
+          interface_ref: if1
+    - host: Speed_test_Frionline
+      name: Speed_test_Frionline
+      description: |
+        Speed_teste
+        FriOnline
+      templates:
+        - name: 'Template - SpeedTest'
+      groups:
+        - name: net
+      interfaces:
+        - ip: 192.168.3.240
+          port: '10051'
+          interface_ref: if1

@@ -1,0 +1,252 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 7ee8a43a247a4959b5c453f698213e06
+      template: 'Template MTR - Analise de Pacotes de Rede'
+      name: 'Template MTR - Analise de Pacotes de Rede'
+      description: 'Autor: Marcus Rônney'
+      groups:
+        - name: Templates
+      items:
+        - uuid: 1b135dfdb9614c81be9f53fac581ae7e
+          name: 'MTR: latência média no destino'
+          type: DEPENDENT
+          key: mtr.destination.avg
+          value_type: FLOAT
+          units: ms
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var hubs = data.report.hubs;
+                  var last = hubs[hubs.length - 1];
+                  
+                  return Number(last.Avg);
+          master_item:
+            key: 'mtr_json.sh["{$MTR.TARGET}","{$MTR.CYCLES}"]'
+          triggers:
+            - uuid: 1fc9d6d7e1d24924928102af414e8dfb
+              expression: |
+                avg(/Template MTR - Analise de Pacotes de Rede/mtr.destination.avg,10m)
+                >{$MTR.RTT.HIGH}
+              name: 'MTR: latência crítica acima de {$MTR.RTT.HIGH} ms para {$MTR.TARGET}'
+              status: DISABLED
+              priority: HIGH
+              manual_close: 'YES'
+            - uuid: 75e0b399d9364741b4deb683eb2e0710
+              expression: |
+                avg(/Template MTR - Analise de Pacotes de Rede/mtr.destination.avg,15m)
+                >{$MTR.RTT.WARN}
+              name: 'MTR: latência média acima de {$MTR.RTT.WARN} ms para {$MTR.TARGET}'
+              status: DISABLED
+              priority: WARNING
+              manual_close: 'YES'
+        - uuid: 248c427a0be847f691363db7be3493f2
+          name: 'MTR: melhor latência no destino'
+          type: DEPENDENT
+          key: mtr.destination.best
+          value_type: FLOAT
+          units: ms
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var hubs = data.report.hubs;
+                  var last = hubs[hubs.length - 1];
+                  
+                  return Number(last.Best);
+          master_item:
+            key: 'mtr_json.sh["{$MTR.TARGET}","{$MTR.CYCLES}"]'
+        - uuid: d4381b577df8479f897a870347537120
+          name: 'MTR: endereço do destino identificado'
+          type: DEPENDENT
+          key: mtr.destination.host
+          value_type: CHAR
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var hubs = data.report.hubs;
+                  var last = hubs[hubs.length - 1];
+                  
+                  return String(last.host);
+          master_item:
+            key: 'mtr_json.sh["{$MTR.TARGET}","{$MTR.CYCLES}"]'
+        - uuid: 6730a294e231455bbaa5d97a163af801
+          name: 'MTR: perda no destino'
+          type: DEPENDENT
+          key: mtr.destination.loss
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  
+                  if (
+                      !data.report ||
+                      !data.report.hubs ||
+                      data.report.hubs.length === 0
+                  ) {
+                      throw "Relatório MTR sem saltos";
+                  }
+                  
+                  var last = data.report.hubs[data.report.hubs.length - 1];
+                  
+                  return Number(last["Loss%"]);
+          master_item:
+            key: 'mtr_json.sh["{$MTR.TARGET}","{$MTR.CYCLES}"]'
+          triggers:
+            - uuid: d3604e1ba95843e0a0a27a38b6608305
+              expression: 'min(/Template MTR - Analise de Pacotes de Rede/mtr.destination.loss,15m)>{$MTR.LOSS.WARN}'
+              name: 'MTR: perda acima de {$MTR.LOSS.WARN}% para {$MTR.TARGET}'
+              status: DISABLED
+              priority: WARNING
+            - uuid: bd1eb61867ce4542b1cbe63c50d5c21b
+              expression: |
+                min(/Template MTR - Analise de Pacotes de Rede/mtr.destination.loss,10m)
+                >{$MTR.LOSS.HIGH}
+              name: 'MTR: perda crítica acima de {$MTR.LOSS.HIGH}% para {$MTR.TARGET}'
+              status: DISABLED
+              priority: HIGH
+        - uuid: 06a95f5a06d64813b8628ae8f5f6a3fb
+          name: 'MTR: variação de latência no destino'
+          type: DEPENDENT
+          key: mtr.destination.stdev
+          value_type: FLOAT
+          units: ms
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var hubs = data.report.hubs;
+                  var last = hubs[hubs.length - 1];
+                  
+                  return Number(last.StDev);
+          master_item:
+            key: 'mtr_json.sh["{$MTR.TARGET}","{$MTR.CYCLES}"]'
+        - uuid: 42223b826d424767a07eff13c37c6a48
+          name: 'MTR: pior latência no destino'
+          type: DEPENDENT
+          key: mtr.destination.worst
+          value_type: FLOAT
+          units: ms
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var hubs = data.report.hubs;
+                  var last = hubs[hubs.length - 1];
+                  
+                  return Number(last.Wrst);
+          master_item:
+            key: 'mtr_json.sh["{$MTR.TARGET}","{$MTR.CYCLES}"]'
+          triggers:
+            - uuid: 6a8615beb31c4513a347e38f005be3f0
+              expression: 'count(/Template MTR - Analise de Pacotes de Rede/mtr.destination.worst,15m,"gt",{$MTR.RTT.WORST})>=3'
+              name: 'MTR: pior latência no destino'
+              status: DISABLED
+              priority: HIGH
+        - uuid: 3ea86991fee6469c9f8691e05846309f
+          name: 'MTR: primeiro salto com perda persistente'
+          type: DEPENDENT
+          key: mtr.hop.firstpersistentloss
+          value_type: CHAR
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var hubs = data.report.hubs;
+                  
+                  if (!hubs || hubs.length === 0) {
+                      return "Sem saltos";
+                  }
+                  
+                  for (var i = 0; i < hubs.length; i++) {
+                      var currentLoss = Number(hubs[i]["Loss%"]);
+                  
+                      if (isNaN(currentLoss) || currentLoss <= 0) {
+                          continue;
+                      }
+                  
+                      var persistent = true;
+                  
+                      for (var j = i + 1; j < hubs.length; j++) {
+                          var nextLoss = Number(hubs[j]["Loss%"]);
+                  
+                          if (isNaN(nextLoss) || nextLoss < currentLoss) {
+                              persistent = false;
+                              break;
+                          }
+                      }
+                  
+                      if (persistent) {
+                          return hubs[i].count + " - " +
+                              hubs[i].host + " - " +
+                              currentLoss + "%";
+                      }
+                  }
+                  
+                  return "Nenhuma perda persistente";
+          master_item:
+            key: 'mtr_json.sh["{$MTR.TARGET}","{$MTR.CYCLES}"]'
+        - uuid: cf99a3fbc6884f72b61d29c98c096752
+          name: 'MTR: quantidade de saltos'
+          type: DEPENDENT
+          key: mtr.hops
+          units: saltos
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  
+                  return data.report.hubs.length;
+          master_item:
+            key: 'mtr_json.sh["{$MTR.TARGET}","{$MTR.CYCLES}"]'
+          triggers:
+            - uuid: 856203e79d154281b06de5907c588cb4
+              expression: |
+                min(/Template MTR - Analise de Pacotes de Rede/mtr.hops,#8)>{$MTR.HOPS.MAX}
+                or
+                max(/Template MTR - Analise de Pacotes de Rede/mtr.hops,#8)<{$MTR.HOPS.MIN}
+              name: 'MTR: quantidade de saltos fora do padrão para {$MTR.TARGET}'
+              status: DISABLED
+              priority: INFO
+              manual_close: 'YES'
+        - uuid: e3e5f6716ac84394848baf31fbbd0ce9
+          name: 'MTR: relatório JSON para {$MTR.TARGET}'
+          type: EXTERNAL
+          key: 'mtr_json.sh["{$MTR.TARGET}","{$MTR.CYCLES}"]'
+          delay: '{$MTR.INTERVAL}'
+          value_type: TEXT
+          timeout: 25s
+      macros:
+        - macro: '{$MTR.CYCLES}'
+          value: '5'
+        - macro: '{$MTR.HOPS.MAX}'
+          value: '14'
+        - macro: '{$MTR.HOPS.MIN}'
+          value: '10'
+        - macro: '{$MTR.INTERVAL}'
+          value: 1m
+        - macro: '{$MTR.LOSS.HIGH}'
+          value: '5'
+        - macro: '{$MTR.LOSS.WARN}'
+          value: '2'
+        - macro: '{$MTR.RTT.HIGH}'
+          value: '150'
+        - macro: '{$MTR.RTT.WARN}'
+          value: '80'
+        - macro: '{$MTR.TARGET}'
+          value: 8.8.8.8
